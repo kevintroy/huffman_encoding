@@ -1,23 +1,36 @@
 import itertools
 
-def hamming(s1,s2):         # works on strings or lists/tuples/sets of strings
-    if not s1 or not s2:
-        return 0
-    else:
-        d = 0
-        if s1[0] != s2[0]:
-            d += 1
-        return d + hamming(s1[1:],s2[1:])
+def hamming(xs,ys):         # works on iterables of equal length
+    if len(xs) != len(ys):
+        raise ValueError(
+            'Hamming distance not defined for sequences of unequal length')
+    return sum(x != y for x,y in zip(xs,ys))  # in python True == 1, False == 0
 
-def min_hamming(iterables):  # can take any number of lists, tuples, or sets
-                             # that contain lists, tuples, or strings
+
+
+def min_hamming(iterables): # can take any number of lists, tuples, or sets
+                            # that contain lists, tuples, or strings
     accumulator = []
-    
-    for i in iterables:
-        comparisons = set(iterables)
-        comparisons.discard(i)
-
-        for c in comparisons:
-            accumulator.append(hamming(c,i))
-
+    for x,y in itertools.combinations(iterables,2):
+        accumulator.append(hamming(x,y))
     return min(accumulator)
+
+
+
+
+teststring1 = "abcdef"
+teststring2 = "abcdeg"
+teststring3 = "abcdzx"
+teststring4 = "lmnopq"
+testtuple1 = (1,2,3,4,5,6)
+testtuple2 = (1,2,3,4,8,9)
+
+assert hamming(teststring1,teststring1) == 0
+assert hamming(testtuple1, testtuple1) == 0
+assert hamming(teststring1, teststring2) == 1
+assert hamming(teststring1, teststring4) == 6
+assert hamming(testtuple1, testtuple2) == 2
+assert hamming(teststring1, testtuple1) == 6
+
+assert min_hamming((teststring1, teststring2, teststring3, teststring4)) == 1
+assert min_hamming((teststring1, teststring3, teststring4)) == 2
